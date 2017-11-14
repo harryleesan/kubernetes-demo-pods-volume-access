@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: demo
+spec:
+  replicas: 1
+  # update strategy (prevents downtime)
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxUnavailable: 0
+  #     maxSurge: 2
+  template:
+    metadata:
+      labels:
+        name: frontend
+    spec:
+      containers:
+        - image: myapp/frontend-test:latest
+          name: frontend
+          imagePullPolicy: Never
+          # add resource usage for scaling
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          env:
+            # set the internal endpoint for the backend service
+            - name: BACKEND_SERVICE
+              value: http://backend.demo
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: demo
+spec:
+  selector:
+    name: frontend
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 30567
+      targetPort: 80

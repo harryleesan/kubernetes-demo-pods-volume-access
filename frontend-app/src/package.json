@@ -1,0 +1,15 @@
+{
+  "name": "front-end-app",
+  "version": "1.0.0",
+  "description": "Demo app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Harry Lee",
+  "license": "ISC",
+  "dependencies": {
+    "express": "4.16.0",
+    "request": "2.83.0"
+  }
+}

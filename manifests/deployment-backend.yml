@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: demo
+spec:
+  replicas: 1
+  # update strategy (prevents downtime)
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxUnavailable: 0
+  #     maxSurge: 2
+  template:
+    metadata:
+      labels:
+        name: backend
+    spec:
+      containers:
+        - image: nginx:1.13.6-alpine
+          name: backend
+          imagePullPolicy: Always
+          # add resource usage for scaling
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          # Mount secret and nginx conf as volumes
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /opt/app
+            - name: config-volume
+              mountPath: /etc/nginx
+      volumes:
+        # defining the secret as a volume
+        - name: secret-volume
+          secret:
+            secretName: demo-secret
+        - name: config-volume
+          configMap:
+            name: nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: demo
+spec:
+  selector:
+    name: backend
+  ports:
+    - port: 80
+      targetPort: 80
